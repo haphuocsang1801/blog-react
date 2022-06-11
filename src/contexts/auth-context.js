@@ -1,10 +1,9 @@
 import { auth } from "firebase-app/firebase-config";
 import { onAuthStateChanged } from "firebase/auth";
-
-const { createContext, useContext, useState, useEffect } = require("react");
+import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext();
-function AuthProvider(props) {
+function AuthProvider({ children }) {
   const [userInfo, setUserInfo] = useState({});
   const value = { userInfo, setUserInfo };
   useEffect(() => {
@@ -12,7 +11,7 @@ function AuthProvider(props) {
       setUserInfo(user);
     });
   }, []);
-  return <AuthContext.Provider value={value} {...props}></AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 function useAuth() {
   const context = useContext(AuthContext);

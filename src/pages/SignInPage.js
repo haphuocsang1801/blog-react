@@ -25,12 +25,14 @@ const schema = yup.object({
     .required("Please enter your password"),
 });
 const SignInPage = () => {
+  const { userInfo } = useAuth();
+  const navigate = useNavigate();
   const {
     handleSubmit,
     control,
     formState: { isValid, isSubmitting, errors },
   } = useForm({
-    mode: "onChange",
+    mode: "onSubmit",
     resolver: yupResolver(schema),
   });
   useEffect(() => {
@@ -42,17 +44,19 @@ const SignInPage = () => {
       });
     }
   }, [errors]);
-  const { userInfo } = useAuth();
-  const navigate = useNavigate();
   useEffect(() => {
+    console.log("useEffect");
     document.title = "Login Page";
-    if (userInfo?.email) navigate("/");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo]);
+    if (userInfo) navigate("/");
+  }, []);
   const handleSignIn = async (values) => {
     if (!isValid) return;
-    await signInWithEmailAndPassword(auth, values.email, values.password);
-    navigate("/");
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      navigate("/");
+    } catch (error) {
+      toast.error("User not founded");
+    }
   };
 
   return (
@@ -65,7 +69,7 @@ const SignInPage = () => {
         <Field>
           <Label htmlFor="email">Email address</Label>
           <Input
-            type="email"
+            type="text"
             name="email"
             placeholder="Enter your email address"
             control={control}

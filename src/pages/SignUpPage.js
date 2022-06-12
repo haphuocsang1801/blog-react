@@ -27,29 +27,31 @@ const schema = yup.object({
 });
 
 const SignUpPage = () => {
-  const navigate = useNavigate();
   const {
     control,
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
   } = useForm({
-    mode: "onChange",
+    mode: "onSubmit",
     resolver: yupResolver(schema),
   });
   const handleSignUp = async (values) => {
     if (!isValid) return;
-    await createUserWithEmailAndPassword(auth, values.email, values.password);
-    await updateProfile(auth.currentUser, {
-      displayName: values.fullname,
-    });
-    const colRef = collection(db, "users");
-    await addDoc(colRef, {
-      fullname: values.fullname,
-      email: values.email,
-      password: values.password,
-    });
-    toast.success("Register successfully!!!");
-    navigate("/");
+    try {
+      await createUserWithEmailAndPassword(auth, values.email, values.password);
+      await updateProfile(auth.currentUser, {
+        displayName: values.fullname,
+      });
+      const colRef = collection(db, "users");
+      await addDoc(colRef, {
+        fullname: values.fullname,
+        email: values.email,
+        password: values.password,
+      });
+      toast.success("Register successfully!!!");
+    } catch (error) {
+      toast.error("Email already exits");
+    }
   };
   useEffect(() => {
     const arrErroes = Object.values(errors);
@@ -82,7 +84,7 @@ const SignUpPage = () => {
         <Field>
           <Label htmlFor="email">Email address</Label>
           <Input
-            type="email"
+            type="text"
             name="email"
             placeholder="Enter your email"
             control={control}

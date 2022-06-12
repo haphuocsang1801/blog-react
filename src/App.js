@@ -12,35 +12,29 @@ import SignUpPage from "./pages/SignUpPage";
 
 function App() {
   return (
-    <div>
+    <>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<HomePage></HomePage>}></Route>
-          <Route path="/sign-up" element={<SignUpPage></SignUpPage>}></Route>
-          <Route path="/sign-in" element={<SignInPage></SignInPage>}></Route>
+          <Route path="/" element={<HomePage></HomePage>} />
+          <Route path="/sign-up" element={<SignUpPage></SignUpPage>} />
+          <Route path="/sign-in" element={<SignInPage></SignInPage>} />
 
-          <Route path="*" element={<NotFoundPage></NotFoundPage>}></Route>
-          <Route
-            path="/:slug"
-            element={<PostDetailsPage></PostDetailsPage>}
-          ></Route>
+          <Route path="*" element={<NotFoundPage></NotFoundPage>} />
+          <Route path="/:slug" element={<PostDetailsPage></PostDetailsPage>} />
           <Route element={<DashboardLayout></DashboardLayout>}>
             <Route
               path="/dashboard"
               element={<DashboardPage></DashboardPage>}
-            ></Route>
-            <Route
-              path="/manage/post"
-              element={<PostManage></PostManage>}
-            ></Route>
+            />
+            <Route path="/manage/post" element={<PostManage></PostManage>} />
             <Route
               path="/manage/add-post"
               element={<PostAddNew></PostAddNew>}
-            ></Route>
+            />
           </Route>
         </Routes>
       </AuthProvider>
-    </div>
+    </>
   );
 }
 

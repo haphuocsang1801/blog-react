@@ -5,7 +5,11 @@ import { Field } from "components/field";
 import ImageUpLoad from "components/imageUpload/ImageUpLoad";
 import { Input } from "components/input";
 import { Label } from "components/label";
+import Toggle from "components/toggle/Toggle";
+import { db } from "firebase-app/firebase-config";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import useFirebaseImage from "hooks/useFirebaseImage";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import slugify from "slugify";
 import styled from "styled-components";
@@ -14,6 +18,7 @@ import { postStatus } from "utils/constants";
 const PostAddNewStyles = styled.div``;
 
 const PostAddNew = () => {
+  const [categories, setCategories] = useState([]);
   const { control, watch, setValue, handleSubmit, getValues } = useForm({
     mode: "onChange",
     defaultValues: {
@@ -21,6 +26,7 @@ const PostAddNew = () => {
       category: "",
       title: "",
       slug: "",
+      hot: false,
     },
   });
   const {
@@ -30,13 +36,33 @@ const PostAddNew = () => {
     handleSelectImage,
     handleUploadImage,
   } = useFirebaseImage(setValue, getValues);
+
   const watchStatus = watch("status");
+  const watchHot = watch("hot");
+
   const addPostHandler = async (values) => {
     const cloneValues = { ...values };
     cloneValues.slug = slugify(values.slug || values.title);
     cloneValues.status = Number(values.status);
+    console.log("addPostHandler ~ cloneValues", cloneValues);
     handleUploadImage(cloneValues.image);
   };
+  useEffect(() => {
+    async function getCategories() {
+      const colRef = collection(db, "categories");
+      const q = query(colRef, where("status", "==", 1));
+      const querySnapShot = await getDocs(q);
+      let result = [];
+      querySnapShot.forEach((doc) => {
+        result.push({
+          id: doc.id,
+          ...doc.data(),
+        });
+      });
+      setCategories(result);
+    }
+    getCategories();
+  }, []);
   return (
     <PostAddNewStyles>
       <h1 className="dashboard-heading">Add new post</h1>
@@ -109,16 +135,20 @@ const PostAddNew = () => {
             <Input control={control} placeholder="Find the author"></Input>
           </Field>
           <Field>
+            <Label>Feature post</Label>
+            <Toggle
+              on={watchHot === true}
+              onClick={() => setValue("hot", !watchHot)}
+            />
+          </Field>
+          <Field>
             <Label>Category</Label>
             <Dropdown>
-              <Dropdown.Option>Knowledge</Dropdown.Option>
-              <Dropdown.Option>Blockchain</Dropdown.Option>
-              <Dropdown.Option>Setup</Dropdown.Option>
-              <Dropdown.Option>Nature</Dropdown.Option>
-              <Dropdown.Option>Developer</Dropdown.Option>
+              {categories?.map((item) => (
+                <Dropdown.Option key={item.id}>{item.name}</Dropdown.Option>
+              ))}
             </Dropdown>
           </Field>
-          <Field></Field>
         </div>
         <Button type="submit" className="mx-auto">
           Add new post

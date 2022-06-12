@@ -14,7 +14,8 @@ export default function useFirebaseImage(setValue, getValues) {
   if (!setValue || !getValues) return;
   const handleUploadImage = (fileImage) => {
     const storage = getStorage();
-    const storageRef = ref(storage, "images/" + fileImage.name);
+    const storageRef = ref(storage, "images/" + fileImage?.name);
+    if (!fileImage) return;
     const uploadTask = uploadBytesResumable(storageRef, fileImage);
     uploadTask.on(
       "state_changed",
@@ -59,7 +60,7 @@ export default function useFirebaseImage(setValue, getValues) {
   const handleSelectImage = (e) => {
     const fileImage = e.target.files[0];
     if (!fileImage) return;
-    setValue("image_name", fileImage.name);
+    setValue("image_name", fileImage?.name);
     handleUploadImage(fileImage);
   };
 
